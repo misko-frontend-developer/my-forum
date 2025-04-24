@@ -1,6 +1,4 @@
 {
-
-
   "scripts": {
     "dev": "nodemon server"
   },
