@@ -14,8 +14,10 @@ dotenv.config({ path: "./config/config.env" });
 
 //routes import
 const users = require("./routes/users");
+const communities = require("./routes/communities");
 
 app.use("/api/v1/users", users);
+app.use("/api/v1/community", communities);
 
 connectDB();
 

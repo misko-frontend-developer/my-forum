@@ -13,15 +13,15 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "publisher"],
+    enum: ["user", "admin"],
     default: "user",
   },
-  password: {
-    type: String,
-    required: [true, "Please add a password"],
-    minlength: 6,
-    select: false,
-  },
+  // password: {
+  //   type: String,
+  //   required: [true, "Please add a password"],
+  //   minlength: 6,
+  //   select: false,
+  // },
   //   resetPasswordToken: String,
   //   resetPasswordExpire: Date,
   //   createdAt: {
