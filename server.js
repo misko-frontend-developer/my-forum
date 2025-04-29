@@ -2,6 +2,10 @@ const express = require("express");
 const connectDB = require("./config/db");
 
 const app = express();
+
+// Body parser
+app.use(express.json());
+
 const dotenv = require("dotenv");
 
 const errorHandler = require("./middleware/error");
@@ -15,9 +19,11 @@ dotenv.config({ path: "./config/config.env" });
 //routes import
 const users = require("./routes/users");
 const communities = require("./routes/communities");
+const auth = require("./routes/auth");
 
 app.use("/api/v1/users", users);
 app.use("/api/v1/community", communities);
+app.use("/api/v1/auth", auth);
 
 connectDB();
 
