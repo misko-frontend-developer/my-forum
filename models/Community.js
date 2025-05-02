@@ -10,11 +10,11 @@ const CommunitySchema = new mongoose.Schema({
     type: String,
     required: [true, "Please add an description"],
   },
-  //   user: {
-  //     type: mongoose.Schema.ObjectId,
-  //     ref: "User",
-  //     required: true,
-  //   },
+    user: {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+      required: true,
+    },
 });
 
 module.exports = mongoose.model("Community", CommunitySchema);

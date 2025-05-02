@@ -20,10 +20,12 @@ dotenv.config({ path: "./config/config.env" });
 const users = require("./routes/users");
 const communities = require("./routes/communities");
 const auth = require("./routes/auth");
+const posts = require("./routes/posts");
 
 app.use("/api/v1/users", users);
 app.use("/api/v1/community", communities);
 app.use("/api/v1/auth", auth);
+app.use("/api/v1/posts", posts);
 
 connectDB();
 
