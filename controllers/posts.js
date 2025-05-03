@@ -1,25 +1,34 @@
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const Post = require("../models/Post");
-const mongoose = require('mongoose')
+const Community = require("../models/Community");
 
 exports.getCommunityPosts = asyncHandler(async (req, res, next) => {
-const {communityId }= req.params;
-    const result = await Post.find({ communityId: new mongoose.Types.ObjectId(communityId) });
+  const { communityId } = req.params;
+  const result = await Post.find({ communityId });
 
+  return res.status(200).json({
+    success: true,
+    data: result,
+  });
+});
 
-    // if (!mongoose.Types.ObjectId.isValid(communityId)) {
-    //     return res.status(400).json({ error: "Invalid community ID" });
-    //   }
+exports.createPost = asyncHandler(async (req, res, next) => {
+  const { communityId } = req.params;
+  req.body.communityId = communityId;
+  req.body.user = req.user.id;
 
-    console.log( communityId  , result);
-    return res.status(200).json({
-        success: true,
-        data: result
-      });
+  const community = await Community.findById(communityId);
 
- 
-})
+  console.log(community, 333);
+
+  const post = await Post.create(req.body);
+
+  return res.status(200).json({
+    success: true,
+    data: post,
+  });
+});
 
 // exports.getCommunities = asyncHandler(async (req, res, next) => {
 //   const result = await Community.find({});

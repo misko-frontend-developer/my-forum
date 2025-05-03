@@ -10,15 +10,14 @@ const PostSchema = new mongoose.Schema({
     required: [true, "Please add some text"],
   },
   communityId: {
-    type: mongoose.Schema.ObjectId,
-    ref: "Community",
+    type: String,
     required: true,
   },
-    user: {
-      type: mongoose.Schema.ObjectId,
-      ref: "User",
-      required: true,
-    },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Post", PostSchema);
