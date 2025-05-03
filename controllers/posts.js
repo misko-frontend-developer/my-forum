@@ -5,11 +5,17 @@ const Community = require("../models/Community");
 
 exports.getCommunityPosts = asyncHandler(async (req, res, next) => {
   const { communityId } = req.params;
-  const result = await Post.find({ communityId });
+  const community = await Community.findById(communityId);
+
+  if (!community) {
+    return next(new ErrorResponse("There is no such community!", 403));
+  }
+
+  const posts = await Post.find({ communityId });
 
   return res.status(200).json({
     success: true,
-    data: result,
+    data: posts,
   });
 });
 
@@ -20,7 +26,9 @@ exports.createPost = asyncHandler(async (req, res, next) => {
 
   const community = await Community.findById(communityId);
 
-  console.log(community, 333);
+  if (!community) {
+    return next(new ErrorResponse("There is no such community!", 403));
+  }
 
   const post = await Post.create(req.body);
 
@@ -30,84 +38,55 @@ exports.createPost = asyncHandler(async (req, res, next) => {
   });
 });
 
-// exports.getCommunities = asyncHandler(async (req, res, next) => {
-//   const result = await Community.find({});
-//   res.status(200).json({ success: true, data: result });
-// });
+exports.updatePost = asyncHandler(async (req, res, next) => {
+  const { postId } = req.params;
 
-// exports.addCommunity = asyncHandler(async (req, res, next) => {
-//   const { name } = req.body;
-//   req.body.user = req.user.id;
+  let post = await Post.findOne({ _id: postId });
 
-//   const checkForName = await Community.findOne({ name });
+  if (!post) {
+    return next(new ErrorResponse("There is no such a post!", 403));
+  }
 
-//   if (checkForName) {
-//     return next(
-//       new ErrorResponse("There is existing community with this name!", 403)
-//     );
-//   }
+  if (String(req.user.id) !== String(post.user)) {
+    return next(new ErrorResponse("You cant edit this post!", 403));
+  }
 
-//   const community = await Community.create(req.body);
+  post = await Post.findByIdAndUpdate(postId, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
-//   return res.status(200).json({
-//     success: true,
-//     data: community,
-//   });
-// });
+  post.save();
 
-// exports.updateCommunity = asyncHandler(async (req, res, next) => {
-//   let community = await Community.findById(req.params.id);
+  return res.status(200).json({
+    success: true,
+    data: post,
+  });
+});
 
-//   if (!community) {
-//     return next(
-//       new ErrorResponse(`No Community with the id of ${req.params.id}`, 404)
-//     );
-//   }
+exports.deletePost = asyncHandler(async (req, res, next) => {
 
-//   if (community.user.toString() !== req.user.id) {
-//     return next(
-//       new ErrorResponse(
-//         `User ${req.user.id} is not authorized to update community ${community._id}`,
-//         401
-//       )
-//     );
-//   }
 
-//   community = await Community.findByIdAndUpdate(req.params.id, req.body, {
-//     new: true,
-//     runValidators: true,
-//   });
+  const { postId } = req.params;
 
-//   community.save();
+  let post = await Post.findOne({ _id: postId });
 
-//   return res.status(200).json({
-//     success: true,
-//     data: community,
-//   });
-// });
+  if (!post) {
+    return next(new ErrorResponse("There is no such a post!", 403));
+  }
 
-// exports.deleteCommunity = asyncHandler(async (req, res, next) => {
-//   let community = await Community.findById(req.params.id);
 
-//   if (!community) {
-//     return next(
-//       new ErrorResponse(`No Community with the id of ${req.params.id}`, 404)
-//     );
-//   }
+  if (String(req.user.id) !== String(post.user)) {
+    return next(new ErrorResponse("You cant edit this post!", 403));
+  }
+  
+  await post.deleteOne({ _id: postId });
 
-//   if (community.user.toString() !== req.user.id) {
-//     return next(
-//       new ErrorResponse(
-//         `User ${req.user.id} is not authorized to update community ${community._id}`,
-//         401
-//       )
-//     );
-//   }
+  res.status(200).json({
+    success: true,
+    data: {},
+  });
 
-//   await community.deleteOne({ _id: community.user.id });
 
-//   res.status(200).json({
-//     success: true,
-//     data: {},
-//   });
-// });
+
+});

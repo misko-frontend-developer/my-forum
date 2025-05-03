@@ -15,6 +15,12 @@ const CommunitySchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+
+  posts: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Posts",
+
+  },
 });
 
 module.exports = mongoose.model("Community", CommunitySchema);
