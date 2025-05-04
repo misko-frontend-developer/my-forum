@@ -19,6 +19,21 @@ exports.getCommunityPosts = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getPost = asyncHandler(async (req, res, next) => {
+  const { postId } = req.params;
+
+  const post = await Post.findById(postId);
+
+  if (!post) {
+    return next(new ErrorResponse("There is no such post!", 403));
+  }
+
+  return res.status(200).json({
+    success: true,
+    data: post,
+  });
+});
+
 exports.createPost = asyncHandler(async (req, res, next) => {
   const { communityId } = req.params;
   req.body.communityId = communityId;
@@ -65,8 +80,6 @@ exports.updatePost = asyncHandler(async (req, res, next) => {
 });
 
 exports.deletePost = asyncHandler(async (req, res, next) => {
-
-
   const { postId } = req.params;
 
   let post = await Post.findOne({ _id: postId });
@@ -75,18 +88,14 @@ exports.deletePost = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("There is no such a post!", 403));
   }
 
-
   if (String(req.user.id) !== String(post.user)) {
     return next(new ErrorResponse("You cant edit this post!", 403));
   }
-  
+
   await post.deleteOne({ _id: postId });
 
   res.status(200).json({
     success: true,
     data: {},
   });
-
-
-
 });

@@ -5,8 +5,25 @@ const Comment = require("../models/Comment");
 
 exports.getCommentsPost = asyncHandler(async (req, res, next) => {
   const { postId } = req.params;
-  const result = await Comment.find({ postId });
-  res.status(200).json({ success: true, data: result });
+  const comments = await Comment.find({ post: postId }).lean();
+
+  let parentArray = [];
+
+  comments.forEach((comment) => {
+    if (comment.parentComment) {
+      comments.forEach((comment2) => {
+        if (comment2._id.toString() === comment.parentComment.toString()) {
+          parentArray.push({ ...comment2, comments: [comment2.comments, comment] });
+        }
+      });
+    } else {
+      parentArray.push(comment);
+    }
+  });
+
+  console.log(comments);
+
+  return res.status(200).json({ success: true, data: parentArray, count: parentArray.length });
 });
 
 exports.addComment = asyncHandler(async (req, res, next) => {
@@ -69,79 +86,21 @@ exports.deleteComment = asyncHandler(async (req, res, next) => {
     data: {},
   });
 });
-// exports.addCommunity = asyncHandler(async (req, res, next) => {
-//   const { name } = req.body;
-//   req.body.user = req.user.id;
 
-//   const checkForName = await Community.findOne({ name });
+exports.replyComment = asyncHandler(async (req, res, next) => {
+  const { postId, commentId } = req.params;
 
-//   if (checkForName) {
-//     return next(
-//       new ErrorResponse("There is existing community with this name!", 403)
-//     );
-//   }
+  req.body.user = req.user.id;
+  req.body.post = postId;
 
-//   const community = await Community.create(req.body);
+  if (commentId) {
+    req.body.parentComment = commentId;
+  }
 
-//   return res.status(200).json({
-//     success: true,
-//     data: community,
-//   });
-// });
+  const comment = await Comment.create(req.body);
 
-// exports.updateCommunity = asyncHandler(async (req, res, next) => {
-//   let community = await Community.findById(req.params.id);
-
-//   if (!community) {
-//     return next(
-//       new ErrorResponse(`No Community with the id of ${req.params.id}`, 404)
-//     );
-//   }
-
-//   if (community.user.toString() !== req.user.id) {
-//     return next(
-//       new ErrorResponse(
-//         `User ${req.user.id} is not authorized to update community ${community._id}`,
-//         401
-//       )
-//     );
-//   }
-
-//   community = await Community.findByIdAndUpdate(req.params.id, req.body, {
-//     new: true,
-//     runValidators: true,
-//   });
-
-//   community.save();
-
-//   return res.status(200).json({
-//     success: true,
-//     data: community,
-//   });
-// });
-
-// exports.deleteCommunity = asyncHandler(async (req, res, next) => {
-//   let community = await Community.findById(req.params.id);
-
-//   if (!community) {
-//     return next(
-//       new ErrorResponse(`No Community with the id of ${req.params.id}`, 404)
-//     );
-//   }
-
-//   if (community.user.toString() !== req.user.id) {
-//     return next(
-//       new ErrorResponse(
-//         `User ${req.user.id} is not authorized to update community ${community._id}`,
-//         401
-//       )
-//     );
-//   }
-
-//   await community.deleteOne({ _id: community.user.id });
-
-//   res.status(200).json({
-//     success: true,
-//     data: {},
-//   });
-// });
+  return res.status(200).json({
+    success: true,
+    data: comment,
+  });
+});

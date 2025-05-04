@@ -16,11 +16,21 @@ const CommentSchema = new mongoose.Schema({
     ref: "Post",
     required: true,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
   parentComment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Comment",
     default: null, // null means it's a top-level comment
   },
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Comment", CommentSchema);
