@@ -29,6 +29,28 @@ app.use("/api/v1/auth", auth);
 app.use("/api/v1/posts", posts);
 app.use("/api/v1/comments", comments);
 
+const mongoSanitize = require("express-mongo-sanitize");
+const xssClean = require("xss-clean");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const cors = require("cors");
+
+app.use(mongoSanitize());
+app.use(xssClean());
+app.use(helmet());
+
+const limiter = rateLimit({
+  windowsMs: 10 * 60 * 1000, // 10 mins
+  max: 1000,
+});
+const hpp = require("hpp");
+
+app.use(hpp());
+
+app.use(cors());
+
+app.use(limiter);
+
 connectDB();
 
 const server = app.listen(PORT, console.log(`Server is running on port ${process.env.PORT}`));
