@@ -31,7 +31,7 @@ exports.updateComment = asyncHandler(async (req, res, next) => {
   if (!comment) {
     return next(new ErrorResponse(`No comment with the id of ${req.params.id}`, 404));
   }
-  console.log(comment, 222);
+
   if (comment.user.toString() !== req.user.id.toString()) {
     return next(new ErrorResponse(`User ${req.user.id} is not authorized to update community ${community._id}`, 401));
   }
@@ -46,6 +46,27 @@ exports.updateComment = asyncHandler(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     data: comment,
+  });
+});
+
+exports.deleteComment = asyncHandler(async (req, res, next) => {
+  const { commentId } = req.params;
+
+  let comment = await Comment.findById(commentId);
+
+  if (!comment) {
+    return next(new ErrorResponse(`No comment with the id of ${req.params.id}`, 404));
+  }
+
+  if (comment.user.toString() !== req.user.id.toString()) {
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to update community ${community._id}`, 401));
+  }
+
+  await comment.deleteOne({ _id: commentId });
+
+  res.status(200).json({
+    success: true,
+    data: {},
   });
 });
 // exports.addCommunity = asyncHandler(async (req, res, next) => {
